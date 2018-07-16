@@ -27,7 +27,7 @@ jwt = JWT.encode(encoding, claims_dict)
 Decode:
 
 ```julia
-JWT.decode(encoding, JWT.encode(encoding, claims_dict))
+JWT.decode(encoding, jwt)
 ```
 
 ```
