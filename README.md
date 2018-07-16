@@ -84,3 +84,9 @@ Dict{String,Any} with 3 entries:
 * RS256
 
 * RS384
+
+# References
+
+* [RFC7519](https://tools.ietf.org/html/rfc7519)
+
+* [jwt.io](https://jwt.io)
