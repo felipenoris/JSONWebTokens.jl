@@ -14,7 +14,7 @@ A [JWT](https://jwt.io/) implementation in Julia.
 Encode:
 
 ```julia
-using JWT
+import JWT
 claims_dict = Dict( "sub" => "1234567890", "name" => "John Doe", "iat" => 1516239022)
 encoding = JWT.HS256("secretkey") # select HS256 encoding
 jwt = JWT.encode(encoding, claims_dict)
@@ -49,7 +49,7 @@ $ openssl rsa -in private.pem -out public.pem -outform PEM -pubout
 Use the private key to encode.
 
 ```julia
-using JWT
+import JWT
 claims_dict = Dict( "sub" => "1234567890", "name" => "John Doe", "iat" => 1516239022)
 rsa_private = JWT.RS256("private.pem") # Use the filepath to private.pem
 jwt = JWT.encode(rsa_private, claims_dict)
