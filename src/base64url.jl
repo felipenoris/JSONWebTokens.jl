@@ -108,50 +108,6 @@ function b64decode!(encvec::Vector{UInt8}, cache::Vector{UInt8})
     res
 end
 
-
-#############################################################################
-
-function unsafe_write(b::Base64EncodePipe, x::Ptr{UInt8}, n::UInt)
-    s = 1 # starting index
-    # finish any cached data to write:
-    if b.nb == 1
-        if n >= 2
-            write(b.io, b64(b.b0, unsafe_load(x, 1), unsafe_load(x, 2))...)
-            s = 3
-        elseif n == 1
-            b.b1 = unsafe_load(x, 1)
-            b.nb = 2
-            return
-        else
-            return
-        end
-    elseif b.nb == 2
-        if n >= 1
-            write(b.io, b64(b.b0, b.b1, unsafe_load(x, 1))...)
-            s = 2
-        else
-            return
-        end
-    end
-    # write all groups of three bytes:
-    while s + 2 <= n
-        write(b.io, b64(unsafe_load(x, s), unsafe_load(x, s + 1), unsafe_load(x, s + 2))...)
-        s += 3
-    end
-    # cache any leftover bytes:
-    if s + 1 == n
-        b.b0 = unsafe_load(x, s)
-        b.b1 = unsafe_load(x, s + 1)
-        b.nb = 2
-    elseif s == n
-        b.b0 = unsafe_load(x, s)
-        b.nb = 1
-    else
-        b.nb = 0
-    end
-    n
-end
-
 function write(b::Base64EncodePipe, x::UInt8)
     if b.nb == 0
         b.b0 = x
