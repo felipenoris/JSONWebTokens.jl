@@ -9,7 +9,6 @@ import JWT, SHA, MbedTLS
     header_and_claims_encoded = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ"
     @test JWT.base64url_encode(header) * "." * JWT.base64url_encode(claims) == header_and_claims_encoded
     @test JWT.base64url_encode(SHA.hmac_sha2_256(convert(Vector{UInt8}, secret), header_and_claims_encoded)) == "pF3q46_CLIyP_1QZPpeccbs-hC4n9YW2VMBjKrSO6Wg"
-
     encoding = JWT.None()
     claims_dict = JSON.parse(claims)
     @test JWT.decode(encoding, JWT.encode(encoding, claims_dict)) == claims_dict
@@ -19,7 +18,6 @@ end
     jwt_encoded = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.8TLPbKjmE0uGLQyLnfHx2z-zy6G8qu5zFFXRSuJID_Y"
     encoding = JWT.HS256("secretkey")
     claims_dict = JWT.decode(encoding, jwt_encoded)
-
     @test claims_dict["sub"] == "1234567890"
     @test claims_dict["name"] == "John Doe"
     @test claims_dict["iat"] == 1516239022
@@ -27,17 +25,14 @@ end
 
 @testset "HS256 invalid JWT decode" begin
     encoding = JWT.HS256("secretkey")
-
     jwt_encoded_invalid_1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.8TLPbKjmE0uGLQyLnfHx2z-zy6G8qu5zFFXRSuJID_Y"
     jwt_encoded_invalid_2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.8TLPbKjmE0uGLQyLnfHx2z-zy6G8qu5zFFXRSuJJD_Y"
-
     @test_throws JWT.InvalidSignatureError JWT.decode(encoding, jwt_encoded_invalid_1)
     @test_throws JWT.InvalidSignatureError JWT.decode(encoding, jwt_encoded_invalid_2)
 end
 
 @testset "HS256 encode/decode" begin
     encoding = JWT.HS256("secretkey")
-
     claims_json = """{"sub":"1234567890","name":"John Doe","iat":1516239022}"""
     claims_dict = JSON.parse(claims_json)
     @test JWT.encode(encoding, claims_json) == "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.8TLPbKjmE0uGLQyLnfHx2z-zy6G8qu5zFFXRSuJID_Y"
@@ -80,6 +75,26 @@ end
     fp_private = "private.pem"
     @assert isfile(fp_public)
     @assert isfile(fp_private)
-    rsa_public = JWT.RS{256}(fp_public)
-    rsa_private = JWT.RS{256}(fp_private)
+    rsa_public = JWT.RS256(fp_public)
+    rsa_private = JWT.RS256(fp_private)
+
+    claims_dict = JSON.parse("""{"sub":"1234567890","name":"John Doe","admin":true,"iat":1516239022}""")
+    jwt = JWT.encode(rsa_private, claims_dict)
+    @test startswith(jwt, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.")
+    @test JWT.decode(rsa_public, jwt) == claims_dict
+
+    fp_public2 = "public2.pem"
+    fp_private2 = "private2.pem"
+    @assert isfile(fp_public2)
+    @assert isfile(fp_private2)
+    rsa_public2 = JWT.RS256(fp_public2)
+    rsa_private2 = JWT.RS256(fp_private2)
+
+    @test_throws JWT.InvalidSignatureError JWT.decode(rsa_public2, jwt)
+    jwt2 = JWT.encode(rsa_private2, claims_dict)
+    @test jwt != jwt2
+    @test JWT.decode(rsa_public2, jwt2) == claims_dict
+    @test_throws JWT.InvalidSignatureError JWT.decode(rsa_public, jwt2)
+
+    @test_throws AssertionError JWT.encode(rsa_public, claims_dict)
 end

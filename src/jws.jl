@@ -76,6 +76,21 @@ function decode(encoding::Encoding, str::AbstractString)
     return jws_claims_dict(claims_encoded)
 end
 
+function has_valid_signature(encoding::Encoding, str::AbstractString) :: Bool
+    last_dot_index = findlast( x -> x == '.', str)
+    if last_dot_index == 0
+        throw(MalformedJWTError("JWT must contain at least one '.' character."))
+    end
+    header_and_claims_encoded = SubString(str, 1, last_dot_index - 1)
+
+    if endof(str) <= last_dot_index + 1
+       throw(MalformedJWTError("JWT has no signature."))
+    end
+
+    signature_encoded = SubString(str, last_dot_index + 1, endof(str))
+    return has_valid_signature(encoding, header_and_claims_encoded, signature_encoded)
+end
+
 verify(encoding::Encoding, str::AbstractString) = !has_valid_signature(encoding, str) && throw(InvalidSignatureError())
 encode(encoding::Encoding, claims_dict::Dict{S, A}) where {S<:AbstractString, A} = encode(encoding, JSON.json(claims_dict))
 
