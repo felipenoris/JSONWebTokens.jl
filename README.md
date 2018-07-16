@@ -39,7 +39,7 @@ Dict{String,Any} with 3 entries:
 
 ## For RSASSA RSA Algorithms
 
-First, generate a public and private keys. You can use `openssl`.
+First, generate public and private keys. You can use `openssl`.
 
 ```shell
 $ openssl genrsa -out private.pem 2048
