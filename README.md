@@ -1,5 +1,5 @@
 
-# JWL.jl
+# JWT.jl
 
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 [![Build Status](https://travis-ci.org/felipenoris/JWT.jl.svg?branch=master)](https://travis-ci.org/felipenoris/JWT.jl)
