@@ -47,6 +47,6 @@ function has_valid_signature(encoding::RS, header_and_claims_encoded::AbstractSt
         _hash = MbedTLS.digest(md, header_and_claims_encoded)
         return MbedTLS.verify(encoding.key, md, _hash, JWT.base64url_decode(signature_encoded)) == 0
     catch e
-        throw(InvalidSignatureError())
+        return false
     end
 end
