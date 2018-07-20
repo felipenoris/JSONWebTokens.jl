@@ -1,9 +1,9 @@
 
-# JWT.jl
+# JSONWebTokens.jl
 
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
-[![Build Status](https://travis-ci.org/felipenoris/JWT.jl.svg?branch=master)](https://travis-ci.org/felipenoris/JWT.jl)
-[![codecov.io](http://codecov.io/github/felipenoris/JWT.jl/coverage.svg?branch=master)](http://codecov.io/github/felipenoris/JWT.jl?branch=master)
+[![Build Status](https://travis-ci.org/felipenoris/JSONWebTokens.jl.svg?branch=master)](https://travis-ci.org/felipenoris/JSONWebTokens.jl)
+[![codecov.io](http://codecov.io/github/felipenoris/JSONWebTokens.jl/coverage.svg?branch=master)](http://codecov.io/github/felipenoris/JSONWebTokens.jl?branch=master)
 
 Secure your Julia APIs with [JWT](https://jwt.io/).
 
@@ -14,10 +14,10 @@ Secure your Julia APIs with [JWT](https://jwt.io/).
 Encode:
 
 ```julia
-import JWT
+import JSONWebTokens
 claims_dict = Dict( "sub" => "1234567890", "name" => "John Doe", "iat" => 1516239022)
-encoding = JWT.HS256("secretkey") # select HS256 encoding
-jwt = JWT.encode(encoding, claims_dict)
+encoding = JSONWebTokens.HS256("secretkey") # select HS256 encoding
+jwt = JSONWebTokens.encode(encoding, claims_dict)
 ```
 
 ```
@@ -27,7 +27,7 @@ jwt = JWT.encode(encoding, claims_dict)
 Decode:
 
 ```julia
-JWT.decode(encoding, jwt)
+JSONWebTokens.decode(encoding, jwt)
 ```
 
 ```
@@ -49,10 +49,10 @@ $ openssl rsa -in private.pem -out public.pem -outform PEM -pubout
 Use the private key to encode.
 
 ```julia
-import JWT
+import JSONWebTokens
 claims_dict = Dict( "sub" => "1234567890", "name" => "John Doe", "iat" => 1516239022)
-rsa_private = JWT.RS256("private.pem") # Use the filepath to private.pem
-jwt = JWT.encode(rsa_private, claims_dict)
+rsa_private = JSONWebTokens.RS256("private.pem") # Use the filepath to private.pem
+jwt = JSONWebTokens.encode(rsa_private, claims_dict)
 ```
 
 ```
@@ -62,8 +62,8 @@ jwt = JWT.encode(rsa_private, claims_dict)
 Use the public key to decode.
 
 ```julia
-rsa_public = JWT.RS256("public.pem") # Use the filepath to public.pem
-JWT.decode(rsa_public, jwt)
+rsa_public = JSONWebTokens.RS256("public.pem") # Use the filepath to public.pem
+JSONWebTokens.decode(rsa_public, jwt)
 ```
 
 ```
