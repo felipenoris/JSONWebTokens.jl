@@ -38,14 +38,14 @@ function sign(encoding::RS, data)
     @assert encoding.is_private_key "Must sign using a private key."
     md = md_hash_alg(encoding)
     signature = MbedTLS.sign(encoding.key, md, MbedTLS.digest(md, data), MersenneTwister(0))
-    return JWT.base64url_encode(signature)
+    return base64url_encode(signature)
 end
 
 function has_valid_signature(encoding::RS, header_and_claims_encoded::AbstractString, signature_encoded::AbstractString) :: Bool
     try
         md = md_hash_alg(encoding)
         _hash = MbedTLS.digest(md, header_and_claims_encoded)
-        return MbedTLS.verify(encoding.key, md, _hash, JWT.base64url_decode(signature_encoded)) == 0
+        return MbedTLS.verify(encoding.key, md, _hash, base64url_decode(signature_encoded)) == 0
     catch e
         return false
     end
