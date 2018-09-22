@@ -12,7 +12,15 @@ const HS384 = HS{384}
 "HMAC using SHA-512"
 const HS512 = HS{512}
 
-HS{bits}(key::AbstractString) where {bits} = HS{bits}(convert(Vector{UInt8}, key))
+function to_byte_array(str::AbstractString)
+	@static if VERSION < v"0.7-"
+		convert(Vector{UInt8}, str)
+	else
+		Vector{UInt8}(Base.CodeUnits(str))
+	end
+end
+
+HS{bits}(key::AbstractString) where {bits} = HS{bits}(to_byte_array(key))
 alg(::HS{bits}) where {bits} = "HS$(bits)"
 
 has_valid_signature(encoding::HS, header_and_claims_encoded::AbstractString, signature_encoded::AbstractString) :: Bool = signature_encoded == sign(encoding, header_and_claims_encoded)

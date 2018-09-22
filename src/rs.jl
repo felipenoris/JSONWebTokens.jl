@@ -18,7 +18,7 @@ md_hash_alg(::RS384) = MbedTLS.MD_SHA384
 function RS{bits}(key_filepath::AbstractString) where {bits}
     @assert isfile(key_filepath) "Key file $key_filepath not found."
     key_as_bytes = read(open(key_filepath, "r"))
-    key_as_string = String(key_as_bytes)
+    key_as_string = String(copy(key_as_bytes))
     context = MbedTLS.PKContext()
 
     if startswith(key_as_string, "-----BEGIN PUBLIC KEY-----")

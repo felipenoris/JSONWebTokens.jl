@@ -1,21 +1,37 @@
 
-base64url_encode(s) = replace(Base64URL.base64encode(s), '=', "") # removes trailing padding
+function base64url_encode(s)
+    encoded_str = Base64URL.base64urlencode(s)
+    io_out = IOBuffer()
+    for c in encoded_str
+        if c == '='
+            break # removes trailing padding
+        end
+        write(io_out, c)
+    end
+    return String(take!(io_out))
+end
 
 function base64url_decode(s::AbstractString)
     @assert isascii(s)
 
     # adds padding back
-    r = rem(length(s), 4)
-    if r > 0
-        for i in 1:r
+    r = rem(lastindex(s), 4)
+    if r != 0
+        for i in 1:(4 - r)
             s *= "="
         end
     end
 
-    return Base64URL.base64decode(s)
+    return Base64URL.base64urldecode(s)
 end
 
-find_dots(str::AbstractString) = find(x -> x == '.', str)
+function find_dots(str::AbstractString)
+    @static if VERSION < v"0.7-"
+        find(x -> x == '.', str)
+    else
+        findall(x -> x == '.', str)
+    end
+end
 
 function jws_split(str::AbstractString)
     dot_indexes = find_dots(str)
@@ -29,11 +45,11 @@ function jws_split(str::AbstractString)
     header = SubString(str, 1, dot_indexes[1] - 1)
 
     if length(dot_indexes) == 1
-        claims = SubString(str, dot_indexes[1] + 1, endof(str))
+        claims = SubString(str, dot_indexes[1] + 1, lastindex(str))
         signature = ""
     else
         claims = SubString(str, dot_indexes[1] + 1, dot_indexes[2] - 1)
-        signature = SubString(str, dot_indexes[2] + 1, endof(str))
+        signature = SubString(str, dot_indexes[2] + 1, lastindex(str))
     end
 
     return header, claims, signature
@@ -83,11 +99,11 @@ function has_valid_signature(encoding::Encoding, str::AbstractString) :: Bool
     end
     header_and_claims_encoded = SubString(str, 1, last_dot_index - 1)
 
-    if endof(str) <= last_dot_index + 1
+    if lastindex(str) <= last_dot_index + 1
        throw(MalformedJWTError("JWT has no signature."))
     end
 
-    signature_encoded = SubString(str, last_dot_index + 1, endof(str))
+    signature_encoded = SubString(str, last_dot_index + 1, lastindex(str))
     return has_valid_signature(encoding, header_and_claims_encoded, signature_encoded)
 end
 

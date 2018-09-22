@@ -1,6 +1,12 @@
 
-using Base.Test
-import JSONWebTokens, SHA, MbedTLS
+import JSONWebTokens, SHA, MbedTLS, JSON
+
+@static if VERSION < v"0.7-"
+    using Base.Test
+else
+    using Test
+    using Random
+end
 
 @testset "base64url_encode/decode" begin
     header = """{"alg":"HS256","typ":"JWT"}"""
@@ -8,7 +14,7 @@ import JSONWebTokens, SHA, MbedTLS
     secret = "123"
     header_and_claims_encoded = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ"
     @test JSONWebTokens.base64url_encode(header) * "." * JSONWebTokens.base64url_encode(claims) == header_and_claims_encoded
-    @test JSONWebTokens.base64url_encode(SHA.hmac_sha2_256(convert(Vector{UInt8}, secret), header_and_claims_encoded)) == "pF3q46_CLIyP_1QZPpeccbs-hC4n9YW2VMBjKrSO6Wg"
+    @test JSONWebTokens.base64url_encode(SHA.hmac_sha2_256( JSONWebTokens.to_byte_array(secret), header_and_claims_encoded)) == "pF3q46_CLIyP_1QZPpeccbs-hC4n9YW2VMBjKrSO6Wg"
     encoding = JSONWebTokens.None()
     claims_dict = JSON.parse(claims)
     @test JSONWebTokens.decode(encoding, JSONWebTokens.encode(encoding, claims_dict)) == claims_dict
