@@ -1,5 +1,4 @@
 
-__precompile__(true)
 module JSONWebTokens
 
 #=
@@ -18,18 +17,13 @@ none    No digital signature or MAC value included
 =#
 
 import JSON, SHA, MbedTLS
+using Random
 
 abstract type Encoding end
 
 include("errors.jl")
 
-@static if VERSION < v"0.7-"
-	include("base64url/base64url_legacy.jl")
-	lastindex(s::AbstractString) = endof(s)
-else
-	using Random
-	include("base64url/Base64URL.jl")
-end
+include("base64url/Base64URL.jl")
 
 include("jws.jl")
 include("none.jl")

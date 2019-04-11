@@ -1,0 +1,19 @@
+name = "JSONWebTokens"
+uuid = "9b8beb19-0777-58c6-920b-28f749fee4d3"
+authors = ["Felipe Noronha <felipenoris@gmail.com>"]
+version = "0.2.0"
+
+[deps]
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+MbedTLS = "739be429-bea8-5141-9913-cc70e7f3736d"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
+
+[compat]
+julia = "^1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

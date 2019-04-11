@@ -107,8 +107,16 @@ function has_valid_signature(encoding::Encoding, str::AbstractString) :: Bool
     return has_valid_signature(encoding, header_and_claims_encoded, signature_encoded)
 end
 
-verify(encoding::Encoding, str::AbstractString) = !has_valid_signature(encoding, str) && throw(InvalidSignatureError())
-encode(encoding::Encoding, claims_dict::Dict{S, A}) where {S<:AbstractString, A} = encode(encoding, JSON.json(claims_dict))
+function verify(encoding::Encoding, str::AbstractString)
+    if !has_valid_signature(encoding, str)
+        throw(InvalidSignatureError())
+    end
+    nothing
+end
+
+function encode(encoding::Encoding, claims_dict::Dict{S, A}) where {S<:AbstractString, A}
+    return encode(encoding, JSON.json(claims_dict))
+end
 
 function encode(encoding::Encoding, claims_json::AbstractString)
     header_encoded = base64url_encode("""{"alg":"$(alg(encoding))","typ":"JWT"}""")

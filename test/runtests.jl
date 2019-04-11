@@ -1,12 +1,8 @@
 
 import JSONWebTokens, SHA, MbedTLS, JSON
 
-@static if VERSION < v"0.7-"
-    using Base.Test
-else
-    using Test
-    using Random
-end
+using Test
+using Random
 
 @testset "base64url_encode/decode" begin
     header = """{"alg":"HS256","typ":"JWT"}"""
