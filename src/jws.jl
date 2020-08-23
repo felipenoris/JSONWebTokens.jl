@@ -25,13 +25,7 @@ function base64url_decode(s::AbstractString)
     return Base64URL.base64urldecode(s)
 end
 
-function find_dots(str::AbstractString)
-    @static if VERSION < v"0.7-"
-        find(x -> x == '.', str)
-    else
-        findall(x -> x == '.', str)
-    end
-end
+find_dots(str::AbstractString) = findall(x -> x == '.', str)
 
 function jws_split(str::AbstractString)
     dot_indexes = find_dots(str)

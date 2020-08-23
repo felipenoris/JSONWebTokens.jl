@@ -12,13 +12,7 @@ const HS384 = HS{384}
 "HMAC using SHA-512"
 const HS512 = HS{512}
 
-function to_byte_array(str::AbstractString)
-    @static if VERSION < v"0.7-"
-        convert(Vector{UInt8}, str)
-    else
-        Vector{UInt8}(Base.CodeUnits(str))
-    end
-end
+to_byte_array(str::AbstractString) = Vector{UInt8}(Base.CodeUnits(str))
 
 HS{bits}(key::AbstractString) where {bits} = HS{bits}(to_byte_array(key))
 alg(::HS{bits}) where {bits} = "HS$(bits)"
