@@ -6,6 +6,16 @@ end
 
 alg(::RS{bits}) where {bits} = "RS$(bits)"
 
+function Base.show(io::IO, encoding::RS)
+    print(io, alg(encoding))
+
+    if encoding.is_private_key
+        print(io, " Private Key")
+    else
+        print(io, " Public Key")
+    end
+end
+
 "RSASSA using SHA-256 hash algorithm"
 const RS256 = RS{256}
 

@@ -12,6 +12,7 @@ using Random
     @test JSONWebTokens.base64url_encode(header) * "." * JSONWebTokens.base64url_encode(claims) == header_and_claims_encoded
     @test JSONWebTokens.base64url_encode(SHA.hmac_sha2_256( JSONWebTokens.to_byte_array(secret), header_and_claims_encoded)) == "pF3q46_CLIyP_1QZPpeccbs-hC4n9YW2VMBjKrSO6Wg"
     encoding = JSONWebTokens.None()
+    show(IOBuffer(), encoding)
     claims_dict = JSON.parse(claims)
     @test JSONWebTokens.decode(encoding, JSONWebTokens.encode(encoding, claims_dict)) == claims_dict
 end
@@ -19,6 +20,7 @@ end
 @testset "HS256 valid JSONWebTokens decode" begin
     jwt_encoded = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.8TLPbKjmE0uGLQyLnfHx2z-zy6G8qu5zFFXRSuJID_Y"
     encoding = JSONWebTokens.HS256("secretkey")
+    show(IOBuffer(), encoding)
     claims_dict = JSONWebTokens.decode(encoding, jwt_encoded)
     @test claims_dict["sub"] == "1234567890"
     @test claims_dict["name"] == "John Doe"
@@ -79,6 +81,8 @@ end
     @assert isfile(fp_private)
     rsa_public = JSONWebTokens.RS256(fp_public)
     rsa_private = JSONWebTokens.RS256(fp_private)
+    show(IOBuffer(), rsa_public)
+    show(IOBuffer(), rsa_private)
 
     claims_dict = JSON.parse("""{"sub":"1234567890","name":"John Doe","admin":true,"iat":1516239022}""")
     jwt = JSONWebTokens.encode(rsa_private, claims_dict)

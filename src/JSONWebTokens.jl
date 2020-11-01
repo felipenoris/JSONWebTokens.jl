@@ -20,6 +20,8 @@ import JSON, SHA, MbedTLS
 using Random
 
 abstract type Encoding end
+function alg end
+Base.show(io::IO, encoding::Encoding) = print(io, alg(encoding))
 
 include("errors.jl")
 
