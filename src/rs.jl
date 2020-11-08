@@ -25,10 +25,25 @@ const RS384 = RS{384}
 md_hash_alg(::RS256) = MbedTLS.MD_SHA256
 md_hash_alg(::RS384) = MbedTLS.MD_SHA384
 
-function RS{bits}(key_filepath::AbstractString) where {bits}
-    @assert isfile(key_filepath) "Key file $key_filepath not found."
-    key_as_bytes = read(open(key_filepath, "r"))
-    key_as_string = String(copy(key_as_bytes))
+@inline function has_key_prefix(str::AbstractString)
+    return startswith(str, "-----BEGIN PUBLIC KEY-----") || startswith(str, "-----BEGIN RSA PRIVATE KEY-----")
+end
+
+@inline convert_string_to_bytes(str::AbstractString) :: Vector{UInt8} = convert(Vector{UInt8}, codeunits(str))
+
+function RS{bits}(key_or_filepath::AbstractString) where {bits}
+    local key_as_bytes::Vector{UInt8}
+    local key_as_string::String
+
+    if has_key_prefix(key_or_filepath)
+        key_as_string = String(key_or_filepath)
+        key_as_bytes = convert_string_to_bytes(key_as_string)
+    else
+        @assert isfile(key_or_filepath) "$key_or_filepath is not a valid RSA public or private key."
+        key_as_bytes = read(open(key_or_filepath, "r"))
+        key_as_string = String(copy(key_as_bytes))
+    end
+
     context = MbedTLS.PKContext()
 
     if startswith(key_as_string, "-----BEGIN PUBLIC KEY-----")
@@ -40,7 +55,7 @@ function RS{bits}(key_filepath::AbstractString) where {bits}
         MbedTLS.parse_key!(context, key_as_bytes)
         return RS{bits}(context, true)
     else
-        error("$key_filepath is not a valid RSA public or private key.")
+        error("$key_or_filepath is not a valid RSA public or private key.")
     end
 end
 

@@ -74,7 +74,7 @@ end
     @test MbedTLS.verify(pubkey, MbedTLS.MD_SHA256, _hash, JSONWebTokens.base64url_decode(signature_encoded)) == 0
 end
 
-@testset "RSA" begin
+@testset "RSA - keys in files" begin
     fp_public = "public.pem"
     fp_private = "private.pem"
     @assert isfile(fp_public)
@@ -103,4 +103,55 @@ end
     @test_throws JSONWebTokens.InvalidSignatureError JSONWebTokens.decode(rsa_public, jwt2)
 
     @test_throws AssertionError JSONWebTokens.encode(rsa_public, claims_dict)
+end
+
+@testset "RSA - keys inline" begin
+
+    public_key = """-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwh4KT/453FE+H2myUOtY
+MJlyDMtkElgdM2G8CkupqbTy7ucCgMb5rrNGKW22ZdyAoPDXCkpqc0jkCEco1nKi
+wYNE4nfcit1MDUwOqXWMVgYUsFZNQEqBYUKxJYApXbiaybkKw7Yn26VFu6+culTN
++05RXSg2I6gYcWoiQMjnPqcrvTlhYRbCLW+0+bISKSoUxm5hRV6FwfEmR30LWtaF
+jHIUNHAX9dg+PVGrKPgK85T4uXKI4SNg6h+Rvgty2pQ9XMbkdli5j/450oWFOa6F
+NJfYQZOX5DMLOIWKOOM0IPCmRwBxzTpOCVgvc7g1KBnw1efzdwhZo1yp5PmqbiLC
+gQIDAQAB
+-----END PUBLIC KEY-----"""
+
+    private_key = """-----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEAwh4KT/453FE+H2myUOtYMJlyDMtkElgdM2G8CkupqbTy7ucC
+gMb5rrNGKW22ZdyAoPDXCkpqc0jkCEco1nKiwYNE4nfcit1MDUwOqXWMVgYUsFZN
+QEqBYUKxJYApXbiaybkKw7Yn26VFu6+culTN+05RXSg2I6gYcWoiQMjnPqcrvTlh
+YRbCLW+0+bISKSoUxm5hRV6FwfEmR30LWtaFjHIUNHAX9dg+PVGrKPgK85T4uXKI
+4SNg6h+Rvgty2pQ9XMbkdli5j/450oWFOa6FNJfYQZOX5DMLOIWKOOM0IPCmRwBx
+zTpOCVgvc7g1KBnw1efzdwhZo1yp5PmqbiLCgQIDAQABAoIBAGDgYx8m7jNw7EL7
+Gf3eZiXi/pM6ElhBV1lkRlcRCbxjTPZDnfEs3ED+wV49ndDaKeuoJnnBR7z/PKaQ
+9OWJUoam/4LSdONsq97a/Vo/CumHoV2bxHP4evdSNFxVyM84KS/RRHkF+IBazCFt
+9Bbd6eqoXFzUi6hh5Mj9Qdj5KscOAmore/4HYw5DkzuNvtutgUaPx7SA+LwBobXP
+NfVG+EKjIWan4XVUbm8QwgCdYqbpY2s5NFZMq/zu6mFGz2my73fZyCIRy0reOs5x
+dg9A8xrjXMWMU8HsCAqS6o+3FXgQBmupMd53S6PAsjM7CHVS2we8T0nY1Yqfiylx
+nhUZ9H0CgYEA5CbJd2RJ+9asqT+ykTKFV3qlt9Nq1Z2s7QHTfbLOPc6Jm4f+bXgD
+C2Ae2v3YvSCHVs40WkJHwJA715AZm9rtlSE4QdzVCxr4D0vhbdhp7CPArnCSeyAF
+Yoqt7ZHCbm3JhM31OBOwJJuRZ2jZobzTsvOCX8vyTxT6svyU9/vXtfMCgYEA2c/D
+b3dib34ShJtY8MMTcCTiAv4PGrsbYF9p+9OPKvL4+na5gH9mKmwukgLBSnzeesle
+ywpk2yy2Y/J3HSIOW1FUgu64bt9l0MKEFx+3Vwex3rllqhMFp7AozRLw3H+5olMT
+5syy9ql8kMSsqEB9OWERQ3CJ5P2Qx6XlcsCAPrsCgYACscqTVGXjSYfEf/IV8OjO
+Pa6TWzXZzADs06axx1jUNgo+Af8pP8+ZZMs4fuL+aNHwXoMTxdCfH5T1WMhUpONF
+bZ0Ceh8yAGGJnLXO3E1z8oAmD0JLnfcyULz5H02SjE1i+iO5Q9JCvGudMwnO9THy
+3RlfFEOKV48WahFAVIMZrQKBgCgZ6l+BWWwxh/NGLq/VGqURBVOLtvgy7q1lo7ur
+jbZYmaJzbV/NFOBGnqRfQXsXVlbA8GTtevgnWUU5hNimRoJljOu2S9qN4s72oR8o
+xbaOQh9Bfwg7DFV9R2XKUPInyeOq7AUYNvLW7Yoxy6AGj4ea6XTDKYAxdxBq6L2h
+13q1AoGAZ6szDCRLW+69n+QKPlujfM8CSjDofnLLvr9RHSuIiFv3+moWXPPUQJf5
+Gt/YOYUZ+k9mfMpC5OIrE/O+9NlUYciwl6wwJjdK9GBJuAQNqa1ZwtEioPYO3ZW6
+hL1Hq+f0MJkBnql53kFDSth1fQSkSMMHIb1LGFYmoT3mSDwHDho=
+-----END RSA PRIVATE KEY-----"""
+
+    rsa_public = JSONWebTokens.RS256(public_key)
+    rsa_private = JSONWebTokens.RS256(private_key)
+    show(IOBuffer(), rsa_public)
+    show(IOBuffer(), rsa_private)
+
+    claims_dict = JSON.parse("""{"sub":"1234567890","name":"John Doe","admin":true,"iat":1516239022}""")
+    jwt = JSONWebTokens.encode(rsa_private, claims_dict)
+    @test startswith(jwt, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.")
+    @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
 end
