@@ -21,6 +21,8 @@ end
     jwt_encoded = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.8TLPbKjmE0uGLQyLnfHx2z-zy6G8qu5zFFXRSuJID_Y"
     encoding = JSONWebTokens.HS256("secretkey")
     show(IOBuffer(), encoding)
+    json = JSONWebTokens.decode_as_json(encoding, jwt_encoded)
+    println("JSON: $json")
     claims_dict = JSONWebTokens.decode(encoding, jwt_encoded)
     @test claims_dict["sub"] == "1234567890"
     @test claims_dict["name"] == "John Doe"

@@ -65,12 +65,12 @@ function jws_claims_dict(claims_encoded::AbstractString)
     try
         claims_dict = JSON.parse(String(base64url_decode(claims_encoded)))
         return claims_dict
-    catch e
-        throw(MalformedJWTError("Couldn't parse claims ($e)."))
+    catch err
+        throw(MalformedJWTError("Couldn't parse claims ($err)."))
     end
 end
 
-function decode(encoding::Encoding, str::AbstractString)
+function decode_as_json(encoding::Encoding, str::AbstractString)
     header_encoded, claims_encoded, signature_encoded = jws_split(str)
     header_dict = jws_header_dict(header_encoded)
 
@@ -83,7 +83,23 @@ function decode(encoding::Encoding, str::AbstractString)
     end
 
     verify(encoding, str)
-    return jws_claims_dict(claims_encoded)
+
+    try
+        return String(base64url_decode(claims_encoded))
+    catch err
+        throw(MalformedJWTError("Couldn't parse claims: ($err)."))
+    end
+end
+
+function decode(encoding::Encoding, str::AbstractString)
+    json_str = decode_as_json(encoding, str)
+
+    try
+        claims_dict = JSON.parse(json_str)
+        return claims_dict
+    catch err
+        throw(MalformedJWTError("Couldn't parse claims ($err)."))
+    end
 end
 
 function has_valid_signature(encoding::Encoding, str::AbstractString) :: Bool
