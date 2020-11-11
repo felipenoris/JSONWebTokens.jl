@@ -1,7 +1,7 @@
 name = "JSONWebTokens"
 uuid = "9b8beb19-0777-58c6-920b-28f749fee4d3"
 authors = ["Felipe Noronha <felipenoris@gmail.com>"]
-version = "0.3.2"
+version = "0.3.3"
 
 [deps]
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
