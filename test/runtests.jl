@@ -61,14 +61,14 @@ end
     signature_encoded = "o9uMYrmOqgdBqhbOBzuiN_0nFp2Ed1J4urFx-TyY61AgM6tUTutTGfIsIZERVjqRXAKd6bGYPuVlGf5m-XADAmqnKTpxcaP_t5ipNfsB6g9rudi7U3uWYldbSfW0-cnayISt5Eyga23Qs5ZqY7e7uQHN_z_mI2Cmoari91ZGnt1jte11gFNd7icMDGz9laBZESeFGFECAxP2hCvrg_G0dCySh_AVnYerD0iF0MznMvV1dxxuprjeQDunQtG3h2uQrJMTBEvCVPxrf7Kql3_k9S4pQDQaoPGQPO9yogpdYdgS5OV3LdSvjlDwRQL6FlDTgB3l1sv0NkEpRviR3x9VLA"
     @test JSONWebTokens.base64url_encode(header) * "." * JSONWebTokens.base64url_encode(claims) == header_and_claims_encoded
 
-    private_key_file = "private.pem"
+    private_key_file = joinpath(@__DIR__, "private.pem")
     @assert isfile(private_key_file) "Couldn't find test private key file $private_key_file."
     key = MbedTLS.parse_keyfile(private_key_file)
     _hash = MbedTLS.digest(MbedTLS.MD_SHA256, header_and_claims_encoded)
     output = MbedTLS.sign(key, MbedTLS.MD_SHA256, _hash, MersenneTwister(0))
     @test JSONWebTokens.base64url_encode(output) == signature_encoded
 
-    public_key_file = "public.pem"
+    public_key_file = joinpath(@__DIR__, "public.pem")
     @assert isfile(public_key_file) "Couldn't find test public key file $public_key_file."
     pubkey_string = read(open(public_key_file, "r"))
     pubkey = MbedTLS.PKContext()
@@ -77,8 +77,8 @@ end
 end
 
 @testset "RSA - keys in files" begin
-    fp_public = "public.pem"
-    fp_private = "private.pem"
+    fp_public = joinpath(@__DIR__, "public.pem")
+    fp_private = joinpath(@__DIR__, "private.pem")
     @assert isfile(fp_public)
     @assert isfile(fp_private)
     rsa_public = JSONWebTokens.RS256(fp_public)
@@ -91,8 +91,8 @@ end
     @test startswith(jwt, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.")
     @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
 
-    fp_public2 = "public2.pem"
-    fp_private2 = "private2.pem"
+    fp_public2 = joinpath(@__DIR__, "public2.pem")
+    fp_private2 = joinpath(@__DIR__, "private2.pem")
     @assert isfile(fp_public2)
     @assert isfile(fp_private2)
     rsa_public2 = JSONWebTokens.RS256(fp_public2)
