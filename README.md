@@ -13,6 +13,16 @@
 
 Secure your Julia APIs with [JWT](https://jwt.io/).
 
+# Requirements
+
+Julia v1.3 or later.
+
+# Installation
+
+```julia
+julia> import Pkg; Pkg.add("JSONWebTokens")
+```
+
 # Usage
 
 ## For HMAC RSA Algorithms
