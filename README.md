@@ -1,9 +1,15 @@
 
 # JSONWebTokens.jl
 
-[![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
-[![Build Status](https://travis-ci.org/felipenoris/JSONWebTokens.jl.svg?branch=master)](https://travis-ci.org/felipenoris/JSONWebTokens.jl)
-[![codecov.io](http://codecov.io/github/felipenoris/JSONWebTokens.jl/coverage.svg?branch=master)](http://codecov.io/github/felipenoris/JSONWebTokens.jl?branch=master)
+[![License][license-img]](LICENSE)
+[![CI][ci-img]][ci-url]
+[![codecov][codecov-img]][codecov-url]
+
+[license-img]: http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
+[ci-img]: https://github.com/felipenoris/JSONWebTokens.jl/workflows/CI/badge.svg
+[ci-url]: https://github.com/felipenoris/JSONWebTokens.jl/actions?query=workflow%3ACI
+[codecov-img]: https://img.shields.io/codecov/c/github/felipenoris/JSONWebTokens.jl/master.svg?label=codecov&style=flat-square
+[codecov-url]: http://codecov.io/github/felipenoris/JSONWebTokens.jl?branch=master
 
 Secure your Julia APIs with [JWT](https://jwt.io/).
 
