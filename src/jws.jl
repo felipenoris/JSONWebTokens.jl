@@ -1,14 +1,15 @@
 
 function base64url_encode(s)
     encoded_str = Base64URL.base64urlencode(s)
-    io_out = IOBuffer()
-    for c in encoded_str
-        if c == '='
-            break # removes trailing padding
+
+    # removes trailing padding
+    for i in lastindex(encoded_str):-1:1 # encoded_str is made of ASCII chars only
+        if encoded_str[i] == '='
+            continue
+        else
+            return encoded_str[1:i]
         end
-        write(io_out, c)
     end
-    return String(take!(io_out))
 end
 
 function base64url_decode(s::AbstractString)
