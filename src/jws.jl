@@ -1,5 +1,5 @@
 
-function base64url_encode(s)
+function base64url_encode(s) :: String
     encoded_str = Base64URL.base64urlencode(s)
 
     # removes trailing padding
