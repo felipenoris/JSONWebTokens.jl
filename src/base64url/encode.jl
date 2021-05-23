@@ -6,7 +6,7 @@ const BASE64_ENCODE = [UInt8(x) for x in ['A':'Z'; 'a':'z'; '0':'9'; '+'; '/']]
 # '-' and '_' instead of '+' and '/'
 const BASE64URL_ENCODE = [UInt8(x) for x in ['A':'Z'; 'a':'z'; '0':'9'; '-'; '_']]
 
-encode_base64(x::UInt8) = @inbounds return BASE64_ENCODE[(x & 0x3f) + 1]
+#encode_base64(x::UInt8) = @inbounds return BASE64_ENCODE[(x & 0x3f) + 1]
 encode_base64url(x::UInt8) = @inbounds return BASE64URL_ENCODE[(x & 0x3f) + 1]
 encodepadding()  = UInt8('=')
 
@@ -75,6 +75,7 @@ function Base.unsafe_write(pipe::Base64EncodePipe, ptr::Ptr{UInt8}, n::UInt)::In
     return p - ptr
 end
 
+#=
 function Base.write(pipe::Base64EncodePipe, x::UInt8)
     buffer = pipe.buffer
     buffer[buffer.size+=1] = x
@@ -83,6 +84,7 @@ function Base.write(pipe::Base64EncodePipe, x::UInt8)
     end
     return 1
 end
+=#
 
 function Base.close(pipe::Base64EncodePipe)
     b1, b2, b3, k = loadtriplet!(pipe.buffer, Ptr{UInt8}(C_NULL), UInt(0))
@@ -162,6 +164,7 @@ function loadtriplet!(buffer::Buffer, ptr::Ptr{UInt8}, n::UInt)
     return b1, b2, b3, k
 end
 
+#=
 function base64encode(f::Function, args...; context=nothing)
     s = IOBuffer()
     b = Base64EncodePipe(s)
@@ -174,6 +177,7 @@ function base64encode(f::Function, args...; context=nothing)
     return String(take!(s))
 end
 base64encode(args...; context=nothing) = base64encode(write, args...; context=context)
+=#
 
 function base64urlencode(f::Function, args...; context=nothing)
     s = IOBuffer()

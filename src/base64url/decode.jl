@@ -10,7 +10,7 @@ for (i, c) in enumerate(BASE64_ENCODE)
     BASE64_DECODE[Int(c)+1] = UInt8(i - 1)
 end
 BASE64_DECODE[Int(encodepadding())+1] = BASE64_CODE_PAD
-decode_base64(x::UInt8) = @inbounds return BASE64_DECODE[x + 1]
+#decode_base64(x::UInt8) = @inbounds return BASE64_DECODE[x + 1]
 
 const BASE64URL_DECODE = fill(BASE64_CODE_IGN, 256)
 for (i, c) in enumerate(BASE64URL_ENCODE)
@@ -31,6 +31,7 @@ struct Base64DecodePipe{F<:Function} <: IO
     end
 end
 
+#=
 function Base.unsafe_read(pipe::Base64DecodePipe, ptr::Ptr{UInt8}, n::UInt)
     p = read_until_end(pipe, ptr, n)
     if p < ptr + n
@@ -38,6 +39,7 @@ function Base.unsafe_read(pipe::Base64DecodePipe, ptr::Ptr{UInt8}, n::UInt)
     end
     return nothing
 end
+=#
 
 # Read and decode as much data as possible.
 function read_until_end(pipe::Base64DecodePipe, ptr::Ptr{UInt8}, n::UInt)
@@ -86,6 +88,7 @@ function read_until_end(pipe::Base64DecodePipe, ptr::Ptr{UInt8}, n::UInt)
     return p
 end
 
+#=
 function Base.read(pipe::Base64DecodePipe, ::Type{UInt8})
     if isempty(pipe.rest)
         unsafe_read(pipe, convert(Ptr{UInt8}, C_NULL), 0)
@@ -95,6 +98,7 @@ function Base.read(pipe::Base64DecodePipe, ::Type{UInt8})
     end
     return popfirst!(pipe.rest)
 end
+=#
 
 function Base.readbytes!(pipe::Base64DecodePipe, data::AbstractVector{UInt8}, nb::Integer=length(data))
 
@@ -173,6 +177,7 @@ function decode_slow(b1, b2, b3, b4, buffer, i, input, ptr, n, rest, decoder)
     return i, p, k == 0
 end
 
+#=
 function base64decode(s)
     b = IOBuffer(s)
     try
@@ -181,6 +186,7 @@ function base64decode(s)
         close(b)
     end
 end
+=#
 
 function base64urldecode(s)
     b = IOBuffer(s)
