@@ -39,7 +39,7 @@ function RS{bits}(key_or_filepath::AbstractString) where {bits}
         key_as_string = String(key_or_filepath)
         key_as_bytes = convert_string_to_bytes(key_as_string)
     else
-        @assert isfile(key_or_filepath) "$key_or_filepath is not a valid RSA public or private key."
+        isfile(key_or_filepath) || throw(ArgumentError("$key_or_filepath is not a valid RSA public or private key."))
         key_as_bytes = read(open(key_or_filepath, "r"))
         key_as_string = String(copy(key_as_bytes))
     end
