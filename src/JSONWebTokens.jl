@@ -17,6 +17,7 @@ none    No digital signature or MAC value included
 =#
 
 import JSON, SHA, MbedTLS
+import Base64
 using Random
 
 abstract type Encoding end

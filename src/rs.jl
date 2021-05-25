@@ -1,4 +1,3 @@
-
 struct RS{bits} <: Encoding
     key::MbedTLS.PKContext
     is_private_key::Bool
@@ -25,6 +24,14 @@ const RS384 = RS{384}
 md_hash_alg(::RS256) = MbedTLS.MD_SHA256
 md_hash_alg(::RS384) = MbedTLS.MD_SHA384
 
+function _try_base64decode(str::AbstractString)
+    try
+        String(Base64.base64decode(str))
+    catch
+        nothing
+    end
+end
+
 @inline function has_key_prefix(str::AbstractString)
     return startswith(str, "-----BEGIN PUBLIC KEY-----") || startswith(str, "-----BEGIN RSA PRIVATE KEY-----")
 end
@@ -35,13 +42,24 @@ function RS{bits}(key_or_filepath::AbstractString) where {bits}
     local key_as_bytes::Vector{UInt8}
     local key_as_string::String
 
+    error_msg = "$key_or_filepath is not a valid RSA public or private key."
+
     if has_key_prefix(key_or_filepath)
         key_as_string = String(key_or_filepath)
         key_as_bytes = convert_string_to_bytes(key_as_string)
     else
-        @assert isfile(key_or_filepath) "$key_or_filepath is not a valid RSA public or private key."
-        key_as_bytes = read(open(key_or_filepath, "r"))
-        key_as_string = String(copy(key_as_bytes))
+        if isfile(key_or_filepath)
+            key_as_bytes = read(open(key_or_filepath, "r"))
+            key_as_string = String(copy(key_as_bytes))
+        else
+            decoded_key = _try_base64decode(key_or_filepath)
+            if (decoded_key isa AbstractString) && (has_key_prefix(decoded_key))
+                key_as_string = String(decoded_key)
+                key_as_bytes = convert_string_to_bytes(decoded_key)
+            else
+                throw(ArgumentError(error_msg))
+            end
+        end
     end
 
     context = MbedTLS.PKContext()
@@ -55,7 +73,7 @@ function RS{bits}(key_or_filepath::AbstractString) where {bits}
         MbedTLS.parse_key!(context, key_as_bytes)
         return RS{bits}(context, true)
     else
-        error("$key_or_filepath is not a valid RSA public or private key.")
+        throw(ArgumentError(error_msg))
     end
 end
 
