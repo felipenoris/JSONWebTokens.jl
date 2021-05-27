@@ -67,7 +67,7 @@ Use the private key to encode.
 ```julia
 import JSONWebTokens
 claims_dict = Dict( "sub" => "1234567890", "name" => "John Doe", "iat" => 1516239022)
-rsa_private = JSONWebTokens.RS256("private.pem") # Use the filepath to private.pem
+rsa_private = JSONWebTokens.RS256("private.pem") # accepts a filepath, string or base64 encoded string
 jwt = JSONWebTokens.encode(rsa_private, claims_dict)
 ```
 
@@ -78,7 +78,7 @@ jwt = JSONWebTokens.encode(rsa_private, claims_dict)
 Use the public key to decode.
 
 ```julia
-rsa_public = JSONWebTokens.RS256("public.pem") # Use the filepath to public.pem
+rsa_public = JSONWebTokens.RS256("public.pem") # accepts a filepath, string or base64 encoded string
 JSONWebTokens.decode(rsa_public, jwt)
 ```
 
