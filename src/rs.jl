@@ -33,6 +33,14 @@ function _try_base64decode(str::AbstractString) :: Union{Nothing, String}
     end
 end
 
+function _try_isfile(str::AbstractString) :: Bool
+    try
+        return isfile(str)
+    catch
+        return false
+    end
+end
+
 @inline function has_key_prefix(str::AbstractString)
     return startswith(str, "-----BEGIN PUBLIC KEY-----") || startswith(str, "-----BEGIN RSA PRIVATE KEY-----")
 end
@@ -52,16 +60,19 @@ function RS{bits}(key_or_filepath::AbstractString) where {bits}
     error_msg = "$key_or_filepath is not a valid RSA public or private key."
 
     if has_key_prefix(key_or_filepath)
+        # plain key string
         key_as_string = String(key_or_filepath)
         key_as_bytes = convert_string_to_bytes(key_as_string)
-    elseif isfile(key_or_filepath)
-            key_as_bytes = read(open(key_or_filepath, "r"))
-            key_as_string = String(copy(key_as_bytes))
     else
+        # base64 encoded key string
         decoded_key = _try_base64decode(key_or_filepath)
         if (decoded_key != nothing) && (has_key_prefix(decoded_key))
             key_as_string = String(decoded_key)
             key_as_bytes = convert_string_to_bytes(decoded_key)
+        elseif _try_isfile(key_or_filepath)
+            # filepath
+            key_as_bytes = read(open(key_or_filepath, "r"))
+            key_as_string = String(copy(key_as_bytes))
         else
             throw(ArgumentError(error_msg))
         end
