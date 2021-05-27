@@ -1,3 +1,4 @@
+
 struct RS{bits} <: Encoding
     key::MbedTLS.PKContext
     is_private_key::Bool
@@ -24,11 +25,11 @@ const RS384 = RS{384}
 md_hash_alg(::RS256) = MbedTLS.MD_SHA256
 md_hash_alg(::RS384) = MbedTLS.MD_SHA384
 
-function _try_base64decode(str::AbstractString)
+function _try_base64decode(str::AbstractString) :: Union{Nothing, String}
     try
-        String(Base64.base64decode(str))
+        return String(Base64.base64decode(str))
     catch
-        nothing
+        return nothing
     end
 end
 
@@ -38,6 +39,12 @@ end
 
 @inline convert_string_to_bytes(str::AbstractString) :: Vector{UInt8} = convert(Vector{UInt8}, codeunits(str))
 
+"""
+    RS{bits}(key_or_filepath::AbstractString) where {bits}
+
+`key_or_filepath` can be either the key content as plain text or base64 encoded string,
+or the filepath to the key file.
+"""
 function RS{bits}(key_or_filepath::AbstractString) where {bits}
     local key_as_bytes::Vector{UInt8}
     local key_as_string::String
@@ -47,18 +54,16 @@ function RS{bits}(key_or_filepath::AbstractString) where {bits}
     if has_key_prefix(key_or_filepath)
         key_as_string = String(key_or_filepath)
         key_as_bytes = convert_string_to_bytes(key_as_string)
-    else
-        if isfile(key_or_filepath)
+    elseif isfile(key_or_filepath)
             key_as_bytes = read(open(key_or_filepath, "r"))
             key_as_string = String(copy(key_as_bytes))
+    else
+        decoded_key = _try_base64decode(key_or_filepath)
+        if (decoded_key != nothing) && (has_key_prefix(decoded_key))
+            key_as_string = String(decoded_key)
+            key_as_bytes = convert_string_to_bytes(decoded_key)
         else
-            decoded_key = _try_base64decode(key_or_filepath)
-            if (decoded_key isa AbstractString) && (has_key_prefix(decoded_key))
-                key_as_string = String(decoded_key)
-                key_as_bytes = convert_string_to_bytes(decoded_key)
-            else
-                throw(ArgumentError(error_msg))
-            end
+            throw(ArgumentError(error_msg))
         end
     end
 

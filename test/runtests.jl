@@ -156,4 +156,10 @@ hL1Hq+f0MJkBnql53kFDSth1fQSkSMMHIb1LGFYmoT3mSDwHDho=
     jwt = JSONWebTokens.encode(rsa_private, claims_dict)
     @test startswith(jwt, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.")
     @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
+
+    @testset "base64 encoded key" begin
+        pub_key_encoded = JSONWebTokens.Base64.base64encode(public_key)
+        rsa_public = JSONWebTokens.RS256(pub_key_encoded)
+        @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
+    end
 end
