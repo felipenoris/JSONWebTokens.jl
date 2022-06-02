@@ -163,3 +163,62 @@ hL1Hq+f0MJkBnql53kFDSth1fQSkSMMHIb1LGFYmoT3mSDwHDho=
         @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
     end
 end
+
+@testset "private key - different prefix" begin
+    private_key = """-----BEGIN PRIVATE KEY-----
+MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDpfdYaKQcs1fg4
++nDHQLLV+UX1uNb/5nAnGkSgv+K2bWBnpnqGsGX1Gp/AsYjWA/R5SfWe5UZoFvdu
+rAWCM8+y8gJwU1jRuEYUeCDKft4TYgFikdcmpsnVmo+R8dIKviji+drZcZuW3cqR
+/+d7nSpbT2OOWbaENOJE/NYmQa4Ha4wKqch1YuD/qjTiB5xPGcNqX14/Z02iitA/
++c/TF9itfNLMkFp5ILD6z4yFtEgMZpk+2ohEKkZiU4KxZwxjTr8xJWGzkGxQKQKJ
+m8uc8PRgYxl4dq/KLK6UUtkBwb1ktWiYRu7h++tiUAqkUblOCFO3duHGWlziizY6
++somCdcDAgMBAAECggEAIprczXnBL3ry0/cCGfXTy3SrUrS3YKvVeWYiP7TQs/rX
+6+S3ihjAs6fjf1qQji993y//8DHI0op813E1S8vD/6Bwjhc8NbDa6hO3wGs3HKZM
+0EAPJBJaHYdPufCeEauHQcSIE+wLhDuQ1zyXITH04h2NAr73FvcDhff3ASqA0WZt
+nSXMLt/z9IEh3yR7DjTsO1efATMLIbydM7Hy1GmIEo4oqlsKWz0KHe6IrtjUoUu0
+8RQGQkMBcGhp8gABoAqoj/Y2kbkzvZqeUTpo8kgzcNBhdQ/kGmrYjGbkMSTjzEyd
+L321GWO6TmcocpX6ElfUU39DgzpYeFYuSmOMjde8gQKBgQD2MaOw/2APEM327pTP
+rna886Rr0Kw4IfhnS255lUPvP1nllw9Q/hd0BwfAZl8rIGqQcoXFRdGp4QA9zymt
+lDk6FIDOH9lu6/DF/Mu0mvt7kyZpfkdECFzw8u8Xcu+P4MfATLE/bgp5agT/NqCy
+cKozQ3DIvQfcPGMgTmZ6PBS6QQKBgQDyyqzQTqhDiybSHpxpMWML8F56wLKxpL1Y
+oem0loi0RFr7HJQgbgFtXqo8T8nVQV7WnwZ5Zhq7/X6JeodInZRHSiqVvWqs+648
+gFp7nkZkt7wj1BdM6XPxNBP1oyPAoceBwmb+GRIb3CiZyUuXBqT7SDQx52fA95Sv
+F7qiy2cYQwKBgQCkAf+lawsIHk7HgLrb+8KYL8tKE9KW9nJwBb1L+9cs68wsecy3
+TP48ym4si0Y9CbRUFCbve4qoG/84Lej6/LJ+8ae5KViFX2Kf0r+1ykVcVnQRdRFu
+zg90aLJEscnL1JfdkHnH4rvRlIJNrouxNAL+caAR6nPxEL2MiQ4Vwi6gwQKBgQCA
+xCkfWXg4SmbObdm6mKzVOiiBpg2f1aVuioDufCAIq3AtWhzdjjpHjTtwPUjoR4FL
+BpBidlqbdXhU5Z02UAzCOn2XaRxYnirsf459nZXr+N5ZijTJX89UD7C+SEW/9o1f
+LoF9JkLKb9tApNfoQ2fgtYypIveOCkDbFBSyHnqRDQKBgQC5nLloja1VudR0uBNg
+JQmkJqrhO4s+fwx9+PIDRycI/UOxfI4XCIFUS9jFgjKWCh9TWBX8jJNM22FT3WnS
+hdYV60DqxNmfKdNolXAj8kzhpmmukJ1VAsVJYkrNqsE298FEDCOGqWVGAL9FerjT
+IHkGhtMpH1DU8l9tK/CWT1rVYg==
+-----END PRIVATE KEY-----"""
+
+    public_key = """-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6X3WGikHLNX4OPpwx0Cy
+1flF9bjW/+ZwJxpEoL/itm1gZ6Z6hrBl9RqfwLGI1gP0eUn1nuVGaBb3bqwFgjPP
+svICcFNY0bhGFHggyn7eE2IBYpHXJqbJ1ZqPkfHSCr4o4vna2XGblt3Kkf/ne50q
+W09jjlm2hDTiRPzWJkGuB2uMCqnIdWLg/6o04gecTxnDal9eP2dNoorQP/nP0xfY
+rXzSzJBaeSCw+s+MhbRIDGaZPtqIRCpGYlOCsWcMY06/MSVhs5BsUCkCiZvLnPD0
+YGMZeHavyiyulFLZAcG9ZLVomEbu4fvrYlAKpFG5TghTt3bhxlpc4os2OvrKJgnX
+AwIDAQAB
+-----END PUBLIC KEY-----"""
+
+    @test JSONWebTokens.has_private_key_prefix(private_key)
+
+    rsa_public = JSONWebTokens.RS256(public_key)
+    rsa_private = JSONWebTokens.RS256(private_key)
+    show(IOBuffer(), rsa_public)
+    show(IOBuffer(), rsa_private)
+
+    claims_dict = JSON.parse("""{"sub":"1234567890","name":"John Doe","admin":true,"iat":1516239022}""")
+    jwt = JSONWebTokens.encode(rsa_private, claims_dict)
+    @test startswith(jwt, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.")
+    @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
+
+    @testset "base64 encoded key" begin
+        pub_key_encoded = JSONWebTokens.Base64.base64encode(public_key)
+        rsa_public = JSONWebTokens.RS256(pub_key_encoded)
+        @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
+    end
+end
