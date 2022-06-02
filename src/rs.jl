@@ -41,8 +41,20 @@ function _try_isfile(str::AbstractString) :: Bool
     end
 end
 
-@inline function has_key_prefix(str::AbstractString)
-    return startswith(str, "-----BEGIN PUBLIC KEY-----") || startswith(str, "-----BEGIN RSA PRIVATE KEY-----")
+const PUBLIC_KEY_PREFIX = "-----BEGIN PUBLIC KEY-----"
+const PRIVATE_KEY_PREFIX_1 = "-----BEGIN PRIVATE KEY-----"
+const PRIVATE_KEY_PREFIX_2 = "-----BEGIN RSA PRIVATE KEY-----"
+
+@inline function has_public_key_prefix(str::AbstractString) ::  Bool
+    return startswith(str, PUBLIC_KEY_PREFIX)
+end
+
+@inline function has_private_key_prefix(str::AbstractString) :: Bool
+    return startswith(str, PRIVATE_KEY_PREFIX_1) || startswith(str, PRIVATE_KEY_PREFIX_2)
+end
+
+@inline function has_key_prefix(str::AbstractString) :: Bool
+    return has_public_key_prefix(str) || has_private_key_prefix(str)
 end
 
 @inline convert_string_to_bytes(str::AbstractString) :: Vector{UInt8} = convert(Vector{UInt8}, codeunits(str))
@@ -80,11 +92,11 @@ function RS{bits}(key_or_filepath::AbstractString) where {bits}
 
     context = MbedTLS.PKContext()
 
-    if startswith(key_as_string, "-----BEGIN PUBLIC KEY-----")
+    if has_public_key_prefix(key_as_string)
         # public key
         MbedTLS.parse_public_key!(context, key_as_bytes)
         return RS{bits}(context, false)
-    elseif startswith(key_as_string, "-----BEGIN RSA PRIVATE KEY-----")
+    elseif has_private_key_prefix(key_as_string)
         # private key
         MbedTLS.parse_key!(context, key_as_bytes)
         return RS{bits}(context, true)
