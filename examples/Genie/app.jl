@@ -16,7 +16,10 @@ end
 route("/api/create_new_user", method = POST) do
     user = Dict( "sub" => "1234567890", "name" => "John Doe", "iat" => 1516239022)
     token = generateToken(user)
-    Genie.Cookies.set!(Genie.Responses.getresponse(), :token, token)
+    Genie.Cookies.set!(Genie.Responses.getresponse(), :token, token, Dict(
+        "httponly" => true,
+        "maxage" => 3600
+    ))
 end
 
 route("/user/validateToken",  method = GET) do
