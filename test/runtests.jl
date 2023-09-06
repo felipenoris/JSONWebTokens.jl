@@ -1,4 +1,3 @@
-
 import JSONWebTokens, SHA, MbedTLS, JSON
 
 using Test
@@ -41,7 +40,7 @@ end
     encoding = JSONWebTokens.HS256("secretkey")
     claims_json = """{"sub":"1234567890","name":"John Doe","iat":1516239022}"""
     claims_dict = JSON.parse(claims_json)
-    @test JSONWebTokens.encode(encoding, claims_json) == "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.8TLPbKjmE0uGLQyLnfHx2z-zy6G8qu5zFFXRSuJID_Y"
+    @test JSONWebTokens.encode(encoding, claims_json) == "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.eLWVGTagnM7bixRmtk8GQHLzC10ZdAJlRjWyD2NDwzQ"
     @test JSONWebTokens.decode(encoding, JSONWebTokens.encode(encoding, claims_dict)) == claims_dict
 end
 
@@ -88,7 +87,7 @@ end
 
     claims_dict = JSON.parse("""{"sub":"1234567890","name":"John Doe","admin":true,"iat":1516239022}""")
     jwt = JSONWebTokens.encode(rsa_private, claims_dict)
-    @test startswith(jwt, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.")
+    @test startswith(jwt, "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.")
     @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
 
     fp_public2 = joinpath(@__DIR__, "public2.pem")
@@ -154,7 +153,7 @@ hL1Hq+f0MJkBnql53kFDSth1fQSkSMMHIb1LGFYmoT3mSDwHDho=
 
     claims_dict = JSON.parse("""{"sub":"1234567890","name":"John Doe","admin":true,"iat":1516239022}""")
     jwt = JSONWebTokens.encode(rsa_private, claims_dict)
-    @test startswith(jwt, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.")
+    @test startswith(jwt, "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.")
     @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
 
     @testset "base64 encoded key" begin
@@ -213,7 +212,7 @@ AwIDAQAB
 
     claims_dict = JSON.parse("""{"sub":"1234567890","name":"John Doe","admin":true,"iat":1516239022}""")
     jwt = JSONWebTokens.encode(rsa_private, claims_dict)
-    @test startswith(jwt, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.")
+    @test startswith(jwt, "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.")
     @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
 
     @testset "base64 encoded key" begin
