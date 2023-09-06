@@ -1,4 +1,3 @@
-
 function base64url_encode(s) :: String
     encoded_str = Base64URL.base64urlencode(s)
 
@@ -125,13 +124,13 @@ function verify(encoding::Encoding, str::AbstractString)
     nothing
 end
 
-
 function encode(
         encoding::Encoding,
         claims_dict::Dict{S, A};
         additional_header_dict = Dict(),
     ) where {S<:AbstractString, A}
-    return encode(encoding, JSON.json(claims_dict); additional_header_dict = additional_header_dict)
+    return encode(encoding, JSON.json(claims_dict); additional_header_dict=additional_header_dict)
+end
 
 function encode(
         encoding::Encoding,
