@@ -32,5 +32,6 @@ include("jws.jl")
 include("none.jl")
 include("hs.jl")
 include("rs.jl")
+include("header_claims.jl")
 
 end

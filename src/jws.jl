@@ -125,12 +125,24 @@ function verify(encoding::Encoding, str::AbstractString)
     nothing
 end
 
-function encode(encoding::Encoding, claims_dict::Dict{S, A}) where {S<:AbstractString, A}
-    return encode(encoding, JSON.json(claims_dict))
-end
 
-function encode(encoding::Encoding, claims_json::AbstractString)
-    header_encoded = base64url_encode("""{"alg":"$(alg(encoding))","typ":"JWT"}""")
+function encode(
+        encoding::Encoding,
+        claims_dict::Dict{S, A};
+        additional_header_dict = Dict(),
+    ) where {S<:AbstractString, A}
+    return encode(encoding, JSON.json(claims_dict); additional_header_dict = additional_header_dict)
+
+function encode(
+        encoding::Encoding,
+        claims_json::AbstractString;
+        additional_header_dict = Dict(),
+    )
+    header_json = _header_json(
+        encoding;
+        additional_header_dict=additional_header_dict,
+    )
+    header_encoded = base64url_encode(header_json)
     claims_encoded = base64url_encode(claims_json)
     header_and_claims_encoded = header_encoded * "." * claims_encoded
     signature = sign(encoding, header_and_claims_encoded)
