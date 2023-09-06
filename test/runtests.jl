@@ -1,8 +1,13 @@
-
 import JSONWebTokens, SHA, MbedTLS, JSON
 
 using Test
 using Random
+
+const list_of_additional_header_dicts = [
+    Dict(),
+    Dict("kid" => "abc12345"),
+    Dict("foo" => "bar", "hello" => "world"),
+]
 
 @testset "base64url_encode/decode" begin
     header = """{"alg":"HS256","typ":"JWT"}"""
@@ -15,6 +20,9 @@ using Random
     show(IOBuffer(), encoding)
     claims_dict = JSON.parse(claims)
     @test JSONWebTokens.decode(encoding, JSONWebTokens.encode(encoding, claims_dict)) == claims_dict
+    for additional_header_dict in list_of_additional_header_dicts
+        @test JSONWebTokens.decode(encoding, JSONWebTokens.encode(encoding, claims_dict; additional_header_dict = additional_header_dict)) == claims_dict
+    end
 end
 
 @testset "HS256 valid JSONWebTokens decode" begin
@@ -41,8 +49,11 @@ end
     encoding = JSONWebTokens.HS256("secretkey")
     claims_json = """{"sub":"1234567890","name":"John Doe","iat":1516239022}"""
     claims_dict = JSON.parse(claims_json)
-    @test JSONWebTokens.encode(encoding, claims_json) == "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.8TLPbKjmE0uGLQyLnfHx2z-zy6G8qu5zFFXRSuJID_Y"
+    @test JSONWebTokens.encode(encoding, claims_json) == "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.eLWVGTagnM7bixRmtk8GQHLzC10ZdAJlRjWyD2NDwzQ"
     @test JSONWebTokens.decode(encoding, JSONWebTokens.encode(encoding, claims_dict)) == claims_dict
+    for additional_header_dict in list_of_additional_header_dicts
+        @test JSONWebTokens.decode(encoding, JSONWebTokens.encode(encoding, claims_dict; additional_header_dict = additional_header_dict)) == claims_dict
+    end
 end
 
 # how to generate public/private key using openssl
@@ -88,8 +99,12 @@ end
 
     claims_dict = JSON.parse("""{"sub":"1234567890","name":"John Doe","admin":true,"iat":1516239022}""")
     jwt = JSONWebTokens.encode(rsa_private, claims_dict)
-    @test startswith(jwt, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.")
+    @test startswith(jwt, "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.")
     @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
+    for additional_header_dict in list_of_additional_header_dicts
+        jwt = JSONWebTokens.encode(rsa_private, claims_dict; additional_header_dict = additional_header_dict)
+        @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
+    end
 
     fp_public2 = joinpath(@__DIR__, "public2.pem")
     fp_private2 = joinpath(@__DIR__, "private2.pem")
@@ -154,13 +169,22 @@ hL1Hq+f0MJkBnql53kFDSth1fQSkSMMHIb1LGFYmoT3mSDwHDho=
 
     claims_dict = JSON.parse("""{"sub":"1234567890","name":"John Doe","admin":true,"iat":1516239022}""")
     jwt = JSONWebTokens.encode(rsa_private, claims_dict)
-    @test startswith(jwt, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.")
+    @test startswith(jwt, "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.")
     @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
-
     @testset "base64 encoded key" begin
         pub_key_encoded = JSONWebTokens.Base64.base64encode(public_key)
         rsa_public = JSONWebTokens.RS256(pub_key_encoded)
         @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
+    end
+
+    for additional_header_dict in list_of_additional_header_dicts
+        jwt = JSONWebTokens.encode(rsa_private, claims_dict; additional_header_dict = additional_header_dict)
+        @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
+        @testset "base64 encoded key" begin
+            pub_key_encoded = JSONWebTokens.Base64.base64encode(public_key)
+            rsa_public = JSONWebTokens.RS256(pub_key_encoded)
+            @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
+        end
     end
 end
 
@@ -213,12 +237,35 @@ AwIDAQAB
 
     claims_dict = JSON.parse("""{"sub":"1234567890","name":"John Doe","admin":true,"iat":1516239022}""")
     jwt = JSONWebTokens.encode(rsa_private, claims_dict)
-    @test startswith(jwt, "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.")
+    @test startswith(jwt, "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.")
     @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
-
     @testset "base64 encoded key" begin
         pub_key_encoded = JSONWebTokens.Base64.base64encode(public_key)
         rsa_public = JSONWebTokens.RS256(pub_key_encoded)
         @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
     end
+
+    for additional_header_dict in list_of_additional_header_dicts
+        jwt = JSONWebTokens.encode(rsa_private, claims_dict; additional_header_dict = additional_header_dict)
+        @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
+        @testset "base64 encoded key" begin
+            pub_key_encoded = JSONWebTokens.Base64.base64encode(public_key)
+            rsa_public = JSONWebTokens.RS256(pub_key_encoded)
+            @test JSONWebTokens.decode(rsa_public, jwt) == claims_dict
+        end
+    end
+end
+
+@testset "header_claims.jl" begin
+    @testset "_header_json" begin
+        encoding = JSONWebTokens.None()
+        @test_throws ErrorException JSONWebTokens._header_json(encoding; additional_header_dict = Dict("alg" => ""))
+        @test_throws ErrorException JSONWebTokens._header_json(encoding; additional_header_dict = Dict("typ" => ""))
+    end
+end
+
+@testset "errors.jl" begin
+    @test JSONWebTokens.InvalidSignatureError() isa Exception
+    @test JSONWebTokens.MalformedJWTError("foo") isa Exception
+    @test JSONWebTokens.NotSupportedJWTError("foo") isa Exception
 end
