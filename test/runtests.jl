@@ -266,6 +266,6 @@ end
 
 @testset "errors.jl" begin
     @test JSONWebTokens.InvalidSignatureError() isa Exception
-    @test JSONWebTokens.MalformedJWTError() isa Exception
-    @test JSONWebTokens.NotSupportedJWTError() isa Exception
+    @test JSONWebTokens.MalformedJWTError("foo") isa Exception
+    @test JSONWebTokens.NotSupportedJWTError("foo") isa Exception
 end
