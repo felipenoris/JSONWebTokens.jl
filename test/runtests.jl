@@ -263,3 +263,9 @@ end
         @test_throws ErrorException JSONWebTokens._header_json(encoding; additional_header_dict = Dict("typ" => ""))
     end
 end
+
+@testset "errors.jl" begin
+    @test JSONWebTokens.InvalidSignatureError() isa Exception
+    @test JSONWebTokens.MalformedJWTError() isa Exception
+    @test JSONWebTokens.NotSupportedJWTError() isa Exception
+end
